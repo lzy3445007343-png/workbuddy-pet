@@ -1,0 +1,135 @@
+<h2 class="sr-only">Git 操作速查手册 - 从零到推送</h2>
+
+<div style="max-width: 680px; margin: 0 auto; padding: 0 0 2rem 0;">
+
+  <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 1.5rem;">
+    <div style="width: 40px; height: 40px; border-radius: 8px; background: var(--color-background-info); display: flex; align-items: center; justify-content: center; font-size: 18px; color: var(--color-text-info);">G</div>
+    <div>
+      <h2 style="font-size: 15px; font-weight: 500; margin: 0;">Git 操作速查手册</h2>
+      <p style="font-size: 13px; color: var(--color-text-secondary); margin: 0;">workbuddy-pet 项目 · 2026-06-21</p>
+    </div>
+  </div>
+
+  <div style="background: var(--color-background-secondary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; margin-bottom: 1.25rem;">
+    <h3 style="font-size: 13px; font-weight: 500; margin: 0 0 0.5rem 0;">核心概念</h3>
+    <div style="display: flex; gap: 12px; font-size: 13px;">
+      <div style="flex: 1; background: var(--color-background-primary); border-radius: var(--border-radius-md); padding: 10px 12px; border: 0.5px solid var(--color-border-tertiary);">
+        <span style="font-weight: 500;">工作区</span>
+        <span style="color: var(--color-text-secondary); display: block;">你正在写的文件（VS Code 里看到的）</span>
+      </div>
+      <div style="color: var(--color-text-secondary); font-size: 20px; align-self: center;">→</div>
+      <div style="flex: 1; background: var(--color-background-primary); border-radius: var(--border-radius-md); padding: 10px 12px; border: 0.5px solid var(--color-border-tertiary);">
+        <span style="font-weight: 500;">暂存区</span>
+        <span style="color: var(--color-text-secondary); display: block;">放进篮子 git add</span>
+      </div>
+      <div style="color: var(--color-text-secondary); font-size: 20px; align-self: center;">→</div>
+      <div style="flex: 1; background: var(--color-background-primary); border-radius: var(--border-radius-md); padding: 10px 12px; border: 0.5px solid var(--color-border-tertiary);">
+        <span style="font-weight: 500;">仓库</span>
+        <span style="color: var(--color-text-secondary); display: block;">正式存档 git commit</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="background: var(--color-background-success); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; margin-bottom: 1.25rem; border: 0.5px solid var(--color-border-success);">
+    <h3 style="font-size: 13px; font-weight: 500; margin: 0 0 0.5rem 0; color: var(--color-text-success);">日常使用（每次都做这三步）</h3>
+    <div style="font-family: var(--font-mono); font-size: 12px; background: #173404; color: #97C459; padding: 1rem; border-radius: var(--border-radius-md); line-height: 2;">
+      git add .<br>
+      git commit -m "这改了什么"<br>
+      git push
+    </div>
+  </div>
+
+  <div style="background: var(--color-background-primary); border-radius: var(--border-radius-lg); border: 0.5px solid var(--color-border-tertiary); padding: 1rem 1.25rem; margin-bottom: 1.25rem;">
+    <h3 style="font-size: 13px; font-weight: 500; margin: 0 0 0.75rem 0;">全套命令速查</h3>
+    <div style="overflow-x: auto;">
+      <table style="width: 100%; border-collapse: collapse; font-size: 13px; table-layout: fixed;">
+        <thead>
+          <tr style="border-bottom: 0.5px solid var(--color-border-tertiary);">
+            <th style="text-align: left; padding: 8px 0; font-weight: 500; width: 50%;">命令</th>
+            <th style="text-align: left; padding: 8px 0; font-weight: 500; width: 25%;">什么时候用</th>
+            <th style="text-align: left; padding: 8px 0; font-weight: 500; width: 25%;">频率</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom: 0.5px solid var(--color-border-tertiary);">
+            <td style="padding: 8px 0; font-family: var(--font-mono); font-size: 12px;">git init</td>
+            <td style="padding: 8px 0;">新项目初始化</td>
+            <td style="padding: 8px 0; color: var(--color-text-secondary);">一次</td>
+          </tr>
+          <tr style="border-bottom: 0.5px solid var(--color-border-tertiary);">
+            <td style="padding: 8px 0; font-family: var(--font-mono); font-size: 12px;">git status</td>
+            <td style="padding: 8px 0;">看看现在什么状态</td>
+            <td style="padding: 8px 0; color: var(--color-text-secondary);">经常</td>
+          </tr>
+          <tr style="border-bottom: 0.5px solid var(--color-border-tertiary);">
+            <td style="padding: 8px 0; font-family: var(--font-mono); font-size: 12px;">git add .</td>
+            <td style="padding: 8px 0;">放进篮子</td>
+            <td style="padding: 8px 0; color: var(--color-text-secondary);">每次提交前</td>
+          </tr>
+          <tr style="border-bottom: 0.5px solid var(--color-border-tertiary);">
+            <td style="padding: 8px 0; font-family: var(--font-mono); font-size: 12px;">git commit -m "..."</td>
+            <td style="padding: 8px 0;">正式存档</td>
+            <td style="padding: 8px 0; color: var(--color-text-secondary);">做完一个功能</td>
+          </tr>
+          <tr style="border-bottom: 0.5px solid var(--color-border-tertiary);">
+            <td style="padding: 8px 0; font-family: var(--font-mono); font-size: 12px;">git push</td>
+            <td style="padding: 8px 0;">推送到 GitHub</td>
+            <td style="padding: 8px 0; color: var(--color-text-secondary);">Commit 之后</td>
+          </tr>
+          <tr style="border-bottom: 0.5px solid var(--color-border-tertiary);">
+            <td style="padding: 8px 0; font-family: var(--font-mono); font-size: 12px;">git log</td>
+            <td style="padding: 8px 0;">看历史记录</td>
+            <td style="padding: 8px 0; color: var(--color-text-secondary);">偶尔</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; font-family: var(--font-mono); font-size: 12px;">git reset</td>
+            <td style="padding: 8px 0;">把篮子倒空</td>
+            <td style="padding: 8px 0; color: var(--color-text-secondary);">加错了时</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div style="background: var(--color-background-info); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; margin-bottom: 1.25rem; border: 0.5px solid var(--color-border-info);">
+    <h3 style="font-size: 13px; font-weight: 500; margin: 0 0 0.5rem 0; color: var(--color-text-info);">新项目首次配置（此项目已完成，以后新项目才需要）</h3>
+    <div style="font-family: var(--font-mono); font-size: 12px; background: #042C53; color: #85B7EB; padding: 1rem; border-radius: var(--border-radius-md); line-height: 2;">
+      git init<br>
+      echo "node_modules/" &gt; .gitignore<br>
+      git config --global user.name "你的名字"<br>
+      git config --global user.email "你的邮箱"<br>
+      git remote add origin git@github.com:用户名/仓库名.git<br>
+      git branch -M main<br>
+      git push -u origin main
+    </div>
+  </div>
+
+  <div style="background: var(--color-background-warning); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; margin-bottom: 1.25rem; border: 0.5px solid var(--color-border-warning);">
+    <h3 style="font-size: 13px; font-weight: 500; margin: 0 0 0.5rem 0; color: var(--color-text-warning);">常见坑</h3>
+    <div style="font-size: 13px; color: var(--color-text-primary); line-height: 1.8;">
+      1. Git Bash 里波浪号用英文输入法打（Shift + Tab上面那个键），中文的 ～ 不行<br>
+      2. 命令手打，不要从网页复制（会带特殊字符报错）<br>
+      3. commit 之后 git status 看到 nothing to commit 才是正常的<br>
+      4. 红色文件名 = Git 不认识它；绿色 = 在篮子里准备存<br>
+      5. 文件没保存（Ctrl+S）的话 git add 不会包含最新改动
+    </div>
+  </div>
+
+  <div style="display: flex; gap: 12px;">
+    <div style="flex: 1; background: var(--color-background-primary); border-radius: var(--border-radius-lg); border: 0.5px solid var(--color-border-tertiary); padding: 1rem 1.25rem;">
+      <h3 style="font-size: 13px; font-weight: 500; margin: 0 0 0.5rem 0;">SSH 密钥（已配好，不用管）</h3>
+      <p style="font-size: 13px; color: var(--color-text-secondary); margin: 0;">
+        密钥位置：C:/Users/34450/.ssh/id_ed25519<br>
+        已添加到 GitHub：我的windows电脑
+      </p>
+    </div>
+    <div style="flex: 1; background: var(--color-background-primary); border-radius: var(--border-radius-lg); border: 0.5px solid var(--color-border-tertiary); padding: 1rem 1.25rem;">
+      <h3 style="font-size: 13px; font-weight: 500; margin: 0 0 0.5rem 0;">项目信息</h3>
+      <p style="font-size: 13px; color: var(--color-text-secondary); margin: 0;">
+        GitHub：github.com/lzy3445007343-png/workbuddy-pet<br>
+        远程：git@github.com:lzy3445007343-png/workbuddy-pet.git
+      </p>
+    </div>
+  </div>
+
+</div>
