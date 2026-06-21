@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>桌宠控制面板</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: "Microsoft YaHei", sans-serif;
+      background: #2c2c2c;
+      color: #eee;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 24px;
+    }
+    h2 {
+      font-size: 20px;
+      margin-bottom: 8px;
+    }
+    button {
+      padding: 12px 40px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background: #4a9eff;
+      color: white;
+      transition: background 0.2s;
+    }
+    button:hover {
+      background: #3a8eef;
+    }
+    button.stop {
+      background: #ff5c5c;
+    }
+    button.stop:hover {
+      background: #e54c4c;
+    }
+    .status {
+      font-size: 14px;
+      color: #999;
+    }
+    .status.on {
+      color: #4caf50;
+    }
+  </style>
+</head>
+<body>
+   <h2>🐱 桌宠控制面板</h2>
+  
+  <div id="petList" style="width: 100%; max-width: 340px; display: flex; flex-direction: column; gap: 12px;"></div>
+
+  <script>
+    const { ipcRenderer } = require("electron");
+
+    // 定义所有可用角色
+    const roles = [
+      { emoji: "🐱", name: "小猫" },
+      { emoji: "🐶", name: "小狗" },
+      { emoji: "🐰", name: "小兔" }
+    ];
+
+    // 每个角色的运行状态
+    const runningState = { "🐱": false, "🐶": false, "🐰": false };
+
+    const petList = document.getElementById("petList");
+
+    // 为每个角色创建一个控制卡片
+    roles.forEach(({ emoji, name }) => {
+      // === 创建卡片外层容器 ===
+      const card = document.createElement("div");
+      card.style.cssText = "background: #3a3a3a; border-radius: 10px; overflow: hidden;";
+
+      // === 卡片内容：上半部分(操作栏) + 下半部分(配置面板，默认隐藏) ===
+      card.innerHTML = `
+        <div style="display: flex; align-items: center; gap: 12px; padding: 12px 16px;">
+          <span style="font-size: 28px;">${emoji}</span>
+          <span style="font-size: 14px; flex: 1; color: #ccc;">${name}</span>
+          <button class="petBtn" data-role="${emoji}" style="padding: 8px 20px; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; background: #4a9eff; color: white;">启动</button>
+          <button class="configBtn" data-role="${emoji}" style="padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; background: #555; color: #ddd;">配置</button>
+          <span class="status-text" style="font-size: 12px; color: #999; width: 40px;">关闭</span>
+        </div>
+        <div class="config-panel" data-role="${emoji}" style="display: none; padding: 12px 16px; border-top: 1px solid #555; background: #333;">
+          <div style="font-size: 12px; color: #aaa; margin-bottom: 8px;">🔑 API 密钥</div>
+          <div style="display: flex; gap: 8px;">
+            <input type="password" class="apiKeyInput" data-role="${emoji}" placeholder="输入API Key..."
+              style="flex: 1; padding: 8px 12px; border: 1px solid #555; border-radius: 6px; background: #2c2c2c; color: #eee; font-size: 13px; outline: none;">
+            <button class="saveApiKeyBtn" data-role="${emoji}"
+              style="padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; background: #4a9eff; color: white;">保存</button>
+          </div>
+          <div class="apiKeyStatus" data-role="${emoji}" style="font-size: 12px; color: #999; margin-top: 6px;">未保存</div>
+        </div>
+      `;
+
+      petList.appendChild(card);
+
+      // === 1. 启动/关闭按钮 ===
+      const btn = card.querySelector(".petBtn");
+      const statusText = card.querySelector(".status-text");
+
+      btn.addEventListener("click", () => {
+        const role = btn.dataset.role;
+
+        if (!runningState[role]) {
+          ipcRenderer.send("start-pet", role);
+          runningState[role] = true;
+          btn.textContent = "关闭";
+          btn.style.background = "#ff5c5c";
+          statusText.textContent = "运行";
+          statusText.style.color = "#4caf50";
+        } else {
+          ipcRenderer.send("stop-pet", role);
+          runningState[role] = false;
+          btn.textContent = "启动";
+          btn.style.background = "#4a9eff";
+          statusText.textContent = "关闭";
+          statusText.style.color = "#999";
+        }
+      });
+
+      // === 2. 配置按钮：展开/收起 ===
+      const configBtn = card.querySelector(".configBtn");
+      const configPanel = card.querySelector(".config-panel");
+
+      configBtn.addEventListener("click", () => {
+        if (configPanel.style.display === "none") {
+          configPanel.style.display = "block";
+          configBtn.textContent = "收起";
+          configBtn.style.background = "#666";
+        } else {
+          configPanel.style.display = "none";
+          configBtn.textContent = "配置";
+          configBtn.style.background = "#555";
+        }
+      });
+
+      // === 3. API Key 保存逻辑 ===
+      const saveBtn = card.querySelector(".saveApiKeyBtn");
+      const apiKeyInput = card.querySelector(".apiKeyInput");
+      const apiKeyStatus = card.querySelector(".apiKeyStatus");
+      const storageKey = `apiKey_${emoji}`;
+
+      // 页面加载时，检查是否已有保存的Key
+      const savedKey = localStorage.getItem(storageKey);
+      if (savedKey) {
+        apiKeyInput.value = savedKey;
+        apiKeyStatus.textContent = "已保存 ✓";
+        apiKeyStatus.style.color = "#4caf50";
+      }
+
+      // 点击保存
+      saveBtn.addEventListener("click", () => {
+        const keyValue = apiKeyInput.value.trim();
+        if (keyValue === "") {
+          apiKeyStatus.textContent = "不能为空！";
+          apiKeyStatus.style.color = "#ff5c5c";
+          return;
+        }
+        localStorage.setItem(storageKey, keyValue);
+        apiKeyStatus.textContent = "已保存 ✓";
+        apiKeyStatus.style.color = "#4caf50";
+      });
+    });
+  </script>
+</body>
+</html>

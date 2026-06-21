@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>我的桌宠</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background: transparent;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      user-select: none;
+    }
+    .pet {
+      font-size: 100px;
+      cursor: grab;
+      -webkit-app-region: drag;
+    }
+  </style>
+</head>
+<body>
+  <div class="pet" id="petDisplay">🐱</div>
+
+  <script>
+    const ipcRenderer = window.require("electron").ipcRenderer;
+
+    ipcRenderer.on("set-role", (event, role) => {
+      document.getElementById("petDisplay").textContent = role;
+    });
+  </script>
+</body>
+</html>
