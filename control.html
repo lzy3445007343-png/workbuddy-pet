@@ -14,11 +14,12 @@
       background: #2c2c2c;
       color: #eee;
       height: 100vh;
+      overflow-y: auto;
       display: flex;
       flex-direction: column;
-      justify-content: center;
       align-items: center;
       gap: 24px;
+      padding: 16px;
     }
     h2 {
       font-size: 20px;
@@ -55,7 +56,26 @@
 <body>
    <h2>🐱 桌宠控制面板</h2>
   
-  <div id="petList" style="width: 100%; max-width: 340px; display: flex; flex-direction: column; gap: 12px;"></div>
+  <div id="petList" style="width: 100%; max-width: 340px; display: flex; flex-direction: column; gap: 12px;"></div><div style="width: 100%; max-width: 340px; margin-top: 8px; border-top: 1px solid #555; padding-top: 16px;">
+  <div style="font-size: 14px; color: #ccc; margin-bottom: 10px;">💬 对话</div>
+  
+  <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+    <select id="chatPetSelect" style="padding: 8px; background: #3a3a3a; color: #eee; border: 1px solid #555; border-radius: 6px; font-size: 13px;">
+      <option value="🐱">🐱 小猫</option>
+      <option value="🐶">🐶 小狗</option>
+      <option value="🐰">🐰 小兔</option>
+    </select>
+  </div>
+
+  <div style="display: flex; gap: 8px;">
+    <input type="text" id="chatInput" placeholder="输入消息..."
+      style="flex: 1; padding: 8px 12px; border: 1px solid #555; border-radius: 6px; background: #2c2c2c; color: #eee; font-size: 13px; outline: none;">
+    <button id="chatSendBtn" style="padding: 8px 20px; background: #4a9eff; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 13px;">发送</button>
+  </div>
+
+  <div id="chatResponse" style="margin-top: 10px; padding: 10px; background: #3a3a3a; border-radius: 6px; font-size: 13px; color: #ccc; min-height: 40px; white-space: pre-wrap;">等待第一条消息...</div>
+</div>
+
 
   <script>
     const { ipcRenderer } = require("electron");
@@ -88,12 +108,28 @@
           <span class="status-text" style="font-size: 12px; color: #999; width: 40px;">关闭</span>
         </div>
         <div class="config-panel" data-role="${emoji}" style="display: none; padding: 12px 16px; border-top: 1px solid #555; background: #333;">
-          <div style="font-size: 12px; color: #aaa; margin-bottom: 8px;">🔑 API 密钥</div>
-          <div style="display: flex; gap: 8px;">
-            <input type="password" class="apiKeyInput" data-role="${emoji}" placeholder="输入API Key..."
-              style="flex: 1; padding: 8px 12px; border: 1px solid #555; border-radius: 6px; background: #2c2c2c; color: #eee; font-size: 13px; outline: none;">
-            <button class="saveApiKeyBtn" data-role="${emoji}"
-              style="padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; background: #4a9eff; color: white;">保存</button>
+          <div style="font-size: 12px; color: #aaa; margin-bottom: 6px;">⚙️ 模型配置</div>
+
+          <div style="margin-bottom: 10px;">
+            <div style="font-size: 11px; color: #888; margin-bottom: 4px;">模型名称</div>
+            <input type="text" class="modelInput" data-role="${emoji}" placeholder="如 deepseek-chat"
+              style="width: 100%; padding: 8px; border: 1px solid #555; border-radius: 6px; background: #2c2c2c; color: #eee; font-size: 13px; outline: none;">
+          </div>
+
+          <div style="margin-bottom: 10px;">
+            <div style="font-size: 11px; color: #888; margin-bottom: 4px;">API 地址（URL）</div>
+            <input type="text" class="urlInput" data-role="${emoji}" placeholder="如 https://api.deepseek.com/v1/chat/completions"
+              style="width: 100%; padding: 8px; border: 1px solid #555; border-radius: 6px; background: #2c2c2c; color: #eee; font-size: 13px; outline: none;">
+          </div>
+
+          <div>
+            <div style="font-size: 11px; color: #888; margin-bottom: 4px;">API Key</div>
+            <div style="display: flex; gap: 8px;">
+              <input type="password" class="apiKeyInput" data-role="${emoji}" placeholder="输入API Key..."
+                style="flex: 1; padding: 8px; border: 1px solid #555; border-radius: 6px; background: #2c2c2c; color: #eee; font-size: 13px; outline: none;">
+              <button class="saveApiKeyBtn" data-role="${emoji}"
+                style="padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; background: #4a9eff; color: white;">保存</button>
+            </div>
           </div>
           <div class="apiKeyStatus" data-role="${emoji}" style="font-size: 12px; color: #999; margin-top: 6px;">未保存</div>
         </div>
@@ -141,29 +177,47 @@
         }
       });
 
-      // === 3. API Key 保存逻辑 ===
+      // === 3. API 配置保存逻辑（模型+URL+Key） ===
       const saveBtn = card.querySelector(".saveApiKeyBtn");
       const apiKeyInput = card.querySelector(".apiKeyInput");
+      const urlInput = card.querySelector(".urlInput");
+      const modelInput = card.querySelector(".modelInput");
       const apiKeyStatus = card.querySelector(".apiKeyStatus");
-      const storageKey = `apiKey_${emoji}`;
+      const storageKey = `apiConfig_${emoji}`;
 
-      // 页面加载时，检查是否已有保存的Key
-      const savedKey = localStorage.getItem(storageKey);
-      if (savedKey) {
-        apiKeyInput.value = savedKey;
+      // 页面加载时，读取已保存的配置
+      const savedConfig = localStorage.getItem(storageKey);
+      if (savedConfig) {
+        const config = JSON.parse(savedConfig);
+        modelInput.value = config.model || "";
+        urlInput.value = config.url || "";
+        apiKeyInput.value = config.key || "";
         apiKeyStatus.textContent = "已保存 ✓";
         apiKeyStatus.style.color = "#4caf50";
       }
 
       // 点击保存
       saveBtn.addEventListener("click", () => {
+        const modelValue = modelInput.value.trim();
+        const urlValue = urlInput.value.trim();
         const keyValue = apiKeyInput.value.trim();
-        if (keyValue === "") {
-          apiKeyStatus.textContent = "不能为空！";
+
+        if (!keyValue) {
+          apiKeyStatus.textContent = "API Key 不能为空！";
           apiKeyStatus.style.color = "#ff5c5c";
           return;
         }
-        localStorage.setItem(storageKey, keyValue);
+        if (!urlValue) {
+          apiKeyStatus.textContent = "URL 不能为空！";
+          apiKeyStatus.style.color = "#ff5c5c";
+          return;
+        }
+
+        const config = { model: modelValue, url: urlValue, key: keyValue };
+        localStorage.setItem(storageKey, JSON.stringify(config));
+        // 同步给主进程（聊天窗口要用）
+        ipcRenderer.send("save-api-config", emoji, config);
+
         apiKeyStatus.textContent = "已保存 ✓";
         apiKeyStatus.style.color = "#4caf50";
       });

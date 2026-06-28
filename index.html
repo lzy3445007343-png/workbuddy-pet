@@ -4,22 +4,23 @@
   <meta charset="UTF-8">
   <title>我的桌宠</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
+    html, body {
+      margin: 0; padding: 0;
+      width: 100%; height: 100%;
+      background: transparent;
+      overflow: hidden;
+      user-select: none;
     }
     body {
-      background: transparent;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      user-select: none;
+      cursor: grab;
     }
     .pet {
       font-size: 100px;
-      cursor: grab;
-      -webkit-app-region: drag;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      cursor: default;
     }
   </style>
 </head>
@@ -27,10 +28,53 @@
   <div class="pet" id="petDisplay">🐱</div>
 
   <script>
-    const ipcRenderer = window.require("electron").ipcRenderer;
+    const { ipcRenderer } = window.require("electron");
+    const petDisplay = document.getElementById("petDisplay");
+    let currentRole = "🐱";
 
     ipcRenderer.on("set-role", (event, role) => {
-      document.getElementById("petDisplay").textContent = role;
+      petDisplay.textContent = role;
+      currentRole = role;
+    });
+
+    // 双击 → 聊天
+    petDisplay.addEventListener("dblclick", () => {
+      ipcRenderer.send("toggle-chat", currentRole);
+    });
+
+    // 右键菜单
+    document.addEventListener("contextmenu", (e) => {
+      e.preventDefault();
+      ipcRenderer.send("show-context-menu", currentRole);
+    });
+
+    // 从菜单关闭自己
+    ipcRenderer.on("stop-pet", () => {
+      ipcRenderer.send("stop-pet", currentRole);
+    });
+
+    // JS 拖拽
+    let isDragging = false;
+    let startX, startY;
+
+    document.addEventListener("mousedown", (e) => {
+      if (e.button !== 0) return;
+      isDragging = true;
+      startX = e.screenX;
+      startY = e.screenY;
+    });
+
+    document.addEventListener("mousemove", (e) => {
+      if (!isDragging) return;
+      const dx = e.screenX - startX;
+      const dy = e.screenY - startY;
+      startX = e.screenX;
+      startY = e.screenY;
+      ipcRenderer.send("move-window", { dx, dy });
+    });
+
+    document.addEventListener("mouseup", () => {
+      isDragging = false;
     });
   </script>
 </body>
